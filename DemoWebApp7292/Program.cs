@@ -1,11 +1,29 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using DemoWebApp7292.wwwroot;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Retrieve the connection string from Key Vault
+var keyVaultName = builder.Configuration["ApplicationInsights:KeyVaultName"]; 
+var secretName = builder.Configuration["ApplicationInsights:SecretName"];
+var kvUri = $"https://{keyVaultName}.vault.azure.net";
+
+var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+KeyVaultSecret secret = client.GetSecret(secretName);
+string appInsightsConnectionString = secret.Value;
+
+// Create ApplicationInsightsServiceOptions and set the connection string
+var appInsightsOptions = new ApplicationInsightsServiceOptions
+{
+    ConnectionString = appInsightsConnectionString
+};
+
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["ApplicationInsights:InstrumentationKey"]);
+builder.Services.AddApplicationInsightsTelemetry(appInsightsOptions);
 
 
 var app = builder.Build();
