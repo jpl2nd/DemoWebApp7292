@@ -5,7 +5,16 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">
+        Welcome,         @if (User.Identity.IsAuthenticated)
+        {
+            <p>@User.Identity.Name</p>
+        }
+        else
+        {
+            <p>User is not authenticated</p>
+        }
+    </h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
     <p>This is the demo for 07-29-2024</p>
     The time is now 2:13Pm
