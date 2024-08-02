@@ -18,7 +18,21 @@ namespace DemoWebApp7292.Pages
 
         public void OnGet()
         {
-              _telemetryClient.TrackEvent("HomePageVisited");
+
+            // Track a custom event with additional data
+            var properties = new Dictionary<string, string>
+        {
+            { "User", User?.Identity?.Name ?? "Anonymous" },
+            { "Page", "Home" }
+        };
+
+            var metrics = new Dictionary<string, double>
+        {
+            { "LoadTime", 1.23 }
+        };
+
+            _telemetryClient.TrackEvent("HomePageVisited", properties, metrics);
+        
 
           
 
