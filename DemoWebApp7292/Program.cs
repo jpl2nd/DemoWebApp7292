@@ -6,6 +6,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Retrieve the connection string from Key Vault
 var keyVaultName = builder.Configuration["ApplicationInsights:KeyVaultName"]; 
 var secretName = builder.Configuration["ApplicationInsights:SecretName"];
@@ -24,6 +25,8 @@ var appInsightsOptions = new ApplicationInsightsServiceOptions
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddApplicationInsightsTelemetry(appInsightsOptions);
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+builder.Services.AddSingleton(client);
 
 
 var app = builder.Build();

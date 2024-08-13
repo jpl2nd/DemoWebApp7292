@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.Abstractions;
 
 namespace DemoWebApp7292.Pages
 {
-    public class PrivacyModel : PageModel
+    public class StorageModel : PageModel
     {
         private readonly ILogger<PrivacyModel> _logger;
         private readonly TelemetryClient _telemetryClient;
@@ -19,7 +19,7 @@ namespace DemoWebApp7292.Pages
         
 
 
-        public PrivacyModel(ILogger<PrivacyModel> logger,  TelemetryClient telemetryClient, IConfiguration configuration)
+        public StorageModel(ILogger<PrivacyModel> logger,  TelemetryClient telemetryClient, IConfiguration configuration)
         {
             _logger = logger;
             _telemetryClient = telemetryClient;
@@ -31,6 +31,8 @@ namespace DemoWebApp7292.Pages
 
         public async Task OnGetAsync()
         {
+
+            var startTime = DateTime.UtcNow;
             //Application Insights
             try
             {
@@ -85,7 +87,16 @@ namespace DemoWebApp7292.Pages
 
                 // Add the blob info to the list
                 Blobs.Add(new BlobInfo { BlobName = blobItem.Name, SasUri = sasUri });
+
+
             }
+            var endTime = DateTime.UtcNow;
+            var duration = endTime - startTime;
+           
+            var metrics = new Dictionary<string, TimeSpan>
+        {
+            { "LoadTime", duration }
+        };
 
 
 

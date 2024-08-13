@@ -1,0 +1,79 @@
+﻿@page
+@model InsightsModel
+@{
+    ViewData["Title"] = "Application Insights";
+}
+<h1>@ViewData["Title"]</h1>
+
+<h2>Navigate to Application Insights </h2>
+<h3> <a href="https://portal.azure.com/#blade/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade" target="_blank">Application Insights</a></h3>
+ In lines 60 - 65, we are sending the following Application Insights telemetry:
+<pre><code class="language-csharp">
+    _telemetryClient.TrackException(ex);
+    _telemetryClient.TrackEvent("Application Insights Page Loaded");
+    _telemetryClient.TrackTrace("Insights Custom Message", SeverityLevel.Information, properties);
+    _telemetryClient.TrackPageView("InsightsPageVisited");
+    </code>
+</pre>
+
+
+ Exceptions: 
+ <pre>
+<code class="language-kql">
+exceptions
+| where outerMessage == "Test exception"
+</code>
+</pre>
+To see the message "Insights Custom Message" in Application Insights, you can run the following query in the Logs section of Application Insights:
+<pre>
+<code class="language-kql">
+traces
+| where message == "Insights Custom Message"
+ </code>
+ </pre>
+
+ Parse json data from customDimensions and customMeasurements
+<pre>
+<code class="language-kql">
+
+ customEvents
+| extend ParsedCustomDimensions = parse_json(customDimensions)
+| extend  parsedCustomMeasuerments = parse_json(customMeasurements)
+| project AspNetCoreEnvironment = tostring(ParsedCustomDimensions.AspNetCoreEnvironment), 
+          DeveloperMode = tostring(ParsedCustomDimensions.DeveloperMode), 
+          User = tostring(ParsedCustomDimensions.User), 
+          Page = tostring(ParsedCustomDimensions.Page),
+          LoadTime = tostring(parsedCustomMeasuerments.LoadTime)
+
+</code></pre>
+
+To see a summary of requests, we can run this query: 
+<pre>
+ <code class="language-kql">
+ 
+requests
+| where timestamp >= ago(1d)  // Filter logs from the last day
+| project timestamp, operation_Id,  id, operation_ParentId  // Select relevant columns
+| order by timestamp asc  // Order by timestamp to see the linear progress
+| extend prevTimestamp = prev(timestamp)  // Get the previous timestamp
+| extend duration = iff(isnull(prevTimestamp), 0, tolong(timestamp - prevTimestamp))  // Calculate duration between events
+| project timestamp, operation_Id,  id, operation_ParentId, duration  // Project the final columns
+| summarize events = make_list(pack("timestamp", timestamp, "duration", duration)) by operation_Id  // Group by operation_Id
+| project operation_Id, events  // Project the final result// Replace 'YourLogTable' with the name of your log table
+requests
+| where timestamp >= ago(1d)  // Filter logs from the last day
+| project timestamp, operation_Id,  id, operation_ParentId  // Select relevant columns
+| order by timestamp asc  // Order by timestamp to see the linear progress
+| extend prevTimestamp = prev(timestamp)  // Get the previous timestamp
+| extend duration = iff(isnull(prevTimestamp), 0, tolong(timestamp - prevTimestamp))  // Calculate duration between events
+| project timestamp, operation_Id,  id, operation_ParentId, duration  // Project the final columns
+| summarize events = make_list(pack("timestamp", timestamp, "duration", duration)) by operation_Id  // Group by operation_Id
+| project operation_Id, events  // Project the final result
+</code>
+</pre>
+
+
+<!-- Include Prism.js JavaScript for syntax highlighting -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-kusto.min.js"></script>

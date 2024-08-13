@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.ApplicationInsights;
+using Azure.Storage.Blobs;
+using Azure.Identity;
 
 namespace DemoWebApp7292.Pages
 {
@@ -26,15 +28,10 @@ namespace DemoWebApp7292.Pages
             { "Page", "Home" }
         };
 
-            var metrics = new Dictionary<string, double>
-        {
-            { "LoadTime", 1.23 }
-        };
 
-            _telemetryClient.TrackEvent("HomePageVisited", properties, metrics);
-        
 
-          
+            _telemetryClient.TrackEvent("HomePageVisited", properties);
+
 
 
         }
