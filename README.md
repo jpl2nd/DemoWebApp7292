@@ -40,7 +40,11 @@ You can clone the full repo and take a look at the code or follow along with the
 7.   Click "Enable"
 8.   Log in to your GitHub Account.
 9.   Select the organization, Repo and Brancg
-10.   Click Review and Create
+10.   Click on Next: network, then Next Monitor
+11.   Enable Application Insights
+12.   Click Create New to create a new instance of Application Insights
+13.   Click Next to enter tags
+15.   Click Review and Create, Then Create
 
 ### Github Action
 1. Navigate to your GitHub repo and click on "Actions"
@@ -49,7 +53,22 @@ You can clone the full repo and take a look at the code or follow along with the
 4. ![image](https://github.com/user-attachments/assets/4285f111-5ddc-4bc8-ae54-a8bb841588a6)
 5. Navigate back to the Code view of your repo and click into '.github/Workflows'
 6. Open the "master_[your web app name].yml" file
-7. Search for "myapp" 
+7. Search for "myapp"
+8. You should see something like
+
+          - name: dotnet publish
+                run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+    
+              - name: Upload artifact for deployment job
+                uses: actions/upload-artifact@v4
+                with:
+                  name: .net-app
+                  path: ${{env.DOTNET_ROOT}}/myapp
+
+9. Chante "myapp" to the name of the project you created in step 1.3 "wainstructions" for me.
+10. Commit the changes and ensure your project builds and deploys to your new website.
+
+### Implement Appllication insights
 
 
 
